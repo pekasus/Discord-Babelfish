@@ -4,14 +4,49 @@ import speech_recognition as sr
 from googletrans import Translator
 from gtts import gTTS
 import os
+import discord
+from discord.ext import commands
+from dotenv import load_dotenv
+import asyncio
 
-def takecommand():
+
+load_dotenv()
+TOKEN = os.getenv('BOT_TOKEN')
+GUILD = int(os.getenv('GUILD_ID'))
+AUDIO_CHANNEL = int(os.getenv('AUDIO_CHANNEL'))
+
+
+intents = discord.Intents.default()
+intents.members = True
+intents.messages = True
+intents.reactions = True
+intents.voice_states = True
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+async def listen():
+    pass
+
+
+@bot.event
+async def on_ready():
+    global guild, channel
+    guild = bot.get_guild(GUILD)
+    channel = bot.get_channel(AUDIO_CHANNEL)
+    connected = await channel.connect()
+    connected.start_recording(discord.sinks.MP3Sink(output_path='test.mp3'), transcribe_audio)
+    await asyncio.sleep(15)
+    connected.stop_recording()
+
+
+async def transcribe_audio():
+    filename = 'test.mp3'
     r = sr.Recognizer()
-    with sr.Microphone() as source:
+    sinkfile = sr.AudioFile(filename)
+    # with sr.Microphone() as source:
+    with sinkfile as source:
         print("listening...")
-        r.pause_threshold = 2
+        r.pause_threshold = 15
         audio = r.listen(source)
-
     try:
         print("Recognizing...")
         query = r.recognize_google(audio, language='en')
@@ -20,23 +55,27 @@ def takecommand():
         print("Did not copy.")
         return "None"
 
-    return query
+    translator = Translator()
 
-query = takecommand()
-while (query == "None"):
-    query = takecommand()
+    text_to_translate = translator.translate(query, dest='de')
+    text = text_to_translate.text
 
-# query = "translate this text into russian"
+    print(text)
 
-translator = Translator()
+    speak = gTTS(text=text, lang='ru', slow=False)
+    speak.save("translate.mp3")
+    playsound('translate.mp3')
+    os.remove('translate.mp3')
 
-text_to_translate = translator.translate(query, dest='ru')
-text = text_to_translate.text
+    # return query
 
-print(text)
+# query = transcribe_audio()
+# while (query == "None"):
+#     query = transcribe_audio()
 
-speak = gTTS(text=text, lang='ru', slow=False)
-speak.save("test.mp3")
-playsound('test.mp3')
-os.remove('test.mp3')
+# query = "translate this text into another language"
 
+
+
+
+bot.run(TOKEN)
