@@ -34,7 +34,9 @@ async def on_ready():
     channel = bot.get_channel(AUDIO_CHANNEL)
     connected = await channel.connect()
     connected.start_recording(discord.sinks.MP3Sink(output_path='test.mp3'), transcribe_audio)
+    print("Recording...\n")
     await asyncio.sleep(15)
+    print("Finished recording.\n")
     connected.stop_recording()
 
 
@@ -45,7 +47,7 @@ async def transcribe_audio():
     # with sr.Microphone() as source:
     with sinkfile as source:
         print("listening...")
-        r.pause_threshold = 15
+        # r.pause_threshold = 15
         audio = r.listen(source)
     try:
         print("Recognizing...")
@@ -62,7 +64,7 @@ async def transcribe_audio():
 
     print(text)
 
-    speak = gTTS(text=text, lang='ru', slow=False)
+    speak = gTTS(text=text, lang='de', slow=False)
     speak.save("translate.mp3")
     playsound('translate.mp3')
     os.remove('translate.mp3')
