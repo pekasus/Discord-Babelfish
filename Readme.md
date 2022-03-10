@@ -26,6 +26,10 @@ to real time.
 5. gTTS
 6. asyncio
 
+### Setup
+You will need to make a bot and store the credentials of the bot and guild 
+in a `.env` file with `BOT_TOKEN` and `GUILD_ID` values in the file.
+
 ### Issues
 I'm having trouble installing PyAudio in a virtual environment because it 
 requires `sudo` to install and this creates issues with maintaining the 
