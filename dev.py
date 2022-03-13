@@ -5,16 +5,35 @@ from speech_recognition import UnknownValueError
 from googletrans import Translator
 from gtts import gTTS
 import os
+# import wave
+import scipy.io.wavfile as wavfile
 
 
+filename = 'test.wav'
+mic_test = "mic-test.wav"
+
+
+def wav_test():
+    # filename = 'test.wav'
+    fs, wave = wavfile.read(filename)
+    print("Sampling rate: " + str(fs))
+
+# wav_test()
+
+def play_wav():
+    playsound(filename)
+
+# play_wav()
 
 def translate_from_file():
-    filename = 'test.wav'
+    # filename = 'test.wav'
+    filename = mic_test
+    playsound(filename)
 
-    # playsound(filename)
     sinkfile = sr.AudioFile(filename)
     # sinkfile = sr.AudioFile('test.wav')
     r = sr.Recognizer()
+    r.energy_threshold = 10
     # with sr.Microphone() as source:
     with sinkfile as source:
         print("listening...")
@@ -45,6 +64,7 @@ def translate_from_file():
     playsound('translate.mp3')
     os.remove('translate.mp3')
 
+translate_from_file()
 
 def translate_from_mic():
     r = sr.Recognizer()
@@ -74,4 +94,17 @@ def translate_from_mic():
     os.remove('translate.mp3')
 
 # translate_from_mic()
-translate_from_file()
+
+
+def save_wav_file():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Speak. ")
+        audio = r.listen(source)
+
+    with open("mic-test.wav", "wb") as f:
+        f.write(audio.get_wav_data())
+
+    playsound("mic-test.wav")
+
+# save_wav_file()
